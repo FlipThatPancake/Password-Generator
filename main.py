@@ -1,37 +1,24 @@
-import string, random, re
+import string, random, re, pyperclip
 from tkinter import *
 from datetime import datetime
 from tkinter import messagebox
-import pyperclip
 
 
 # ---------------------------- GENERATE PASSWORD ------------------------------- #
 
-# Define a dictionary containing different character sets
-characters = {
-    "letters": string.ascii_lowercase + string.ascii_uppercase,
-    "digits": string.digits,
-    "punctuation": list(filter(lambda char: char not in "(){}[]|~ ,'=+-",
-                       string.punctuation))
-}
-
-
 def generate_password():
-    # Generates a string of random characters from a given character set
-    def get_random_chars(dict_key, min_val, max_val):
-        chars_string = "".join([random.choice(characters[dict_key]) for _ in range(random.randint(min_val, max_val))])
-        return chars_string
+    """Generates a password in the password entry widget and copies it automatically to a clipboard"""
 
-    # Select random characters from each character set
-    password_alpha = get_random_chars("letters", 4, 6)
-    password_alpha += get_random_chars("digits", 2, 4)
-    password_alpha += get_random_chars("punctuation", 2, 4)
-
-    # Shuffles the characters in given character sets and combines into one string
-    password = "".join(random.sample(password_alpha, len(password_alpha)))
+    # Generate a 10-18-characters-long password from:
+    password = "".join(random.choices(string.ascii_lowercase, k=random.randint(4, 6)) # 4-6 lowercase letters
+                       + random.choices(string.ascii_uppercase, k=random.randint(2, 4)) # 2-4 uppercase letters
+                       + random.choices(
+        list(filter(lambda char: char not in "(){}[]|~ ,'=+-", string.punctuation)),
+        k=random.randint(2, 4)) # 2-4 punctuation symbols excluding (){}[]|~ ,'=+-
+                       + random.choices(string.digits, k=random.randint(2, 4))) # 2-4 digits
 
     # Clear the password entry widget and inserts the new password
-    password_box.delete(0, END) # Clears previous generated password if any
+    password_box.delete(0, END)  # Clears previous generated password if any
     password_box.insert(0, password)
 
     # Copy the new password to clipboard
