@@ -45,23 +45,51 @@ def clear_entry_box(*widgets):
 
 
 def add_password():
+
     # Get information from entry fields
     website, email, password = website_box.get(), email_box.get(), password_box.get()
+
     # Check if boxes are not empty
     if any(len(value) == 0 for value in [website, email, password]):
         messagebox.showinfo("Wrong Input", "All boxes must be filled out.")
-    else:
-        # Check with the user if details are correct
-        if ask_user():
-            # Save to file
-            with open("./passwords_saved.dat", "a") as file:
-                now = datetime.now()
-                date_ = now.strftime("%d/%m/%y %H:%M")
-                password_saved = f"{date_} | {website} | {email} | {password} \n"
-                file.write(password_saved)
-            # Clear all entry fields
-            clear_entry_box(website_box, email_box, password_box)
-            email_box.insert(END, "pawelpedziwiatr@gmail.com")
+        return None
+
+    # Check with the user if details are correct
+    if not ask_user():
+        website_box.focus()
+        return None
+
+    # check if csv already exists
+    if not os.path.isfile("./password_log.csv"):
+        # create a new csv file
+        columns = {"Date": [],
+                   "Website": [],
+                   "Email": [],
+                   "Password": []
+                   }
+        new_data = pandas.DataFrame(columns)
+        new_data.to_csv("./password_log.csv")
+
+    # check if the password already in csv
+    data = pandas.read_csv("./password_log.csv")
+    if any([row.Password == password for (index, row) in data.iterrows()]): # if not [list] means it is empty
+        print("This password has been used.")
+        return None
+
+    # add a new row/entry
+    now = datetime.now()
+    date_ = now.strftime("%d%m%y %H:%M")
+    new_entry = {"Date": [date_],
+                 "Website": [website],
+                 "Email": [email],
+                 "Password": [password]
+                 }
+    new_data = pandas.DataFrame.from_dict(new_entry)
+    new_data.to_csv("./password_log.csv", mode='a', header=False)
+    print("Successfully added a new entry")
+
+    # Clear all fields
+    clear_entry_box(website_box, email_box, password_box)
 
 # ---------------------------- UI SETUP ------------------------------- #
 
