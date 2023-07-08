@@ -72,7 +72,7 @@ def add_password():
 
     # check if the password already in csv
     data = pandas.read_csv("./password_log.csv")
-    if any([row.Password == password for (index, row) in data.iterrows()]): # if not [list] means it is empty
+    if data.loc[(data['Password'] == password) & (data['Website'] == website)].shape[0] > 0:
         print("This password has been used.")
         return None
 
